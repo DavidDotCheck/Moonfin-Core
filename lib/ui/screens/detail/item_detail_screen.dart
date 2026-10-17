@@ -7077,6 +7077,7 @@ class DetailActionButtonsState extends State<DetailActionButtons> {
           activeColor: const Color(0xFFFF4757),
         ),
       if (_ratableItemTypes.contains(item.type) &&
+          viewModel.supportsPersonalRating &&
           shows(DetailButton.personalRating))
         DetailButton.personalRating: _DetailActionButton(
           label: _personalRatingActionLabel(l10n, item),
