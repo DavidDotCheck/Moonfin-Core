@@ -3611,7 +3611,9 @@ class _DetailContentState extends State<_DetailContent> {
     AggregatedItem item,
   ) async {
     final l10n = AppLocalizations.of(context);
-    final controller = TextEditingController(text: item.name);
+    // The field keeps its own controller, since the rename rebuilds the page
+    // while the dialog is still closing.
+    var name = item.name;
     final newName = await showFocusRestoringDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog.adaptive(
@@ -3620,12 +3622,13 @@ class _DetailContentState extends State<_DetailContent> {
           l10n.renamePlaylist,
           style: const TextStyle(color: Colors.white),
         ),
-        content: TextField(
-          controller: controller,
+        content: TextFormField(
+          initialValue: item.name,
           autofocus: true,
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(hintText: l10n.playlistName),
-          onSubmitted: (_) => Navigator.pop(ctx, controller.text.trim()),
+          onChanged: (value) => name = value,
+          onFieldSubmitted: (_) => Navigator.pop(ctx, name.trim()),
         ),
         actions: [
           adaptiveDialogAction(
@@ -3636,13 +3639,12 @@ class _DetailContentState extends State<_DetailContent> {
             ),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            onPressed: () => Navigator.pop(ctx, name.trim()),
             child: Text(l10n.save),
           ),
         ],
       ),
     );
-    controller.dispose();
     if (newName == null || newName.isEmpty || newName == item.name) return;
     await viewModel.renamePlaylist(newName);
   }
